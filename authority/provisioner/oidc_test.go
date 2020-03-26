@@ -453,6 +453,7 @@ func TestOIDC_AuthorizeSSHSign(t *testing.T) {
 	// Create test provisioners
 	p1, err := generateOIDC()
 	assert.FatalError(t, err)
+	p1.PrincipalWhitelist = []string{"admin"}
 	p2, err := generateOIDC()
 	assert.FatalError(t, err)
 	p3, err := generateOIDC()
@@ -520,7 +521,7 @@ func TestOIDC_AuthorizeSSHSign(t *testing.T) {
 	userDuration := p1.claimer.DefaultUserSSHCertDuration()
 	hostDuration := p1.claimer.DefaultHostSSHCertDuration()
 	expectedUserOptions := &SSHOptions{
-		CertType: "user", Principals: []string{"name", "name@smallstep.com"},
+		CertType: "user", Principals: []string{"admin", "name", "name@smallstep.com"},
 		ValidAfter: NewTimeDuration(tm), ValidBefore: NewTimeDuration(tm.Add(userDuration)),
 	}
 	expectedAdminOptions := &SSHOptions{
@@ -551,6 +552,9 @@ func TestOIDC_AuthorizeSSHSign(t *testing.T) {
 		{"ok-user", p1, args{t1, SSHOptions{CertType: "user"}, pub}, expectedUserOptions, http.StatusOK, false, false},
 		{"ok-principals", p1, args{t1, SSHOptions{Principals: []string{"name"}}, pub},
 			&SSHOptions{CertType: "user", Principals: []string{"name"},
+				ValidAfter: NewTimeDuration(tm), ValidBefore: NewTimeDuration(tm.Add(userDuration))}, http.StatusOK, false, false},
+		{"ok-principalsWhitelist", p1, args{t1, SSHOptions{Principals: []string{"admin"}}, pub},
+			&SSHOptions{CertType: "user", Principals: []string{"admin"},
 				ValidAfter: NewTimeDuration(tm), ValidBefore: NewTimeDuration(tm.Add(userDuration))}, http.StatusOK, false, false},
 		{"ok-principals-getIdentity", p4, args{okGetIdentityToken, SSHOptions{Principals: []string{"mariano"}}, pub},
 			&SSHOptions{CertType: "user", Principals: []string{"mariano"},
