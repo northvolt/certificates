@@ -58,7 +58,7 @@ type OIDC struct {
 	ClientSecret          string   `json:"clientSecret"`
 	ConfigurationEndpoint string   `json:"configurationEndpoint"`
 	Admins                []string `json:"admins,omitempty"`
-	PrincipalWhitelist	  []string `json:"principalWhitelist`
+	PrincipalWhitelist    []string `json:"principalWhitelist`
 	Domains               []string `json:"domains,omitempty"`
 	Groups                []string `json:"groups,omitempty"`
 	ListenAddress         string   `json:"listenAddress,omitempty"`
@@ -344,11 +344,11 @@ func (o *OIDC) AuthorizeSSHSign(ctx context.Context, token string) ([]SignOption
 	if err != nil {
 		return nil, errs.Wrap(http.StatusInternalServerError, err, "oidc.AuthorizeSSHSign")
 	}
-	
-	safePrincipals := []string{}
+
+	var safePrincipals []string
 	safePrincipals = append(safePrincipals, o.PrincipalWhitelist...)
 	safePrincipals = append(safePrincipals, iden.Usernames...)
-	
+
 	defaults := SSHOptions{
 		CertType:   SSHUserCert,
 		Principals: safePrincipals,
